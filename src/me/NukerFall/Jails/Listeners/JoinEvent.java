@@ -1,6 +1,9 @@
 package me.NukerFall.Jails.Listeners;
 
+import java.io.File;
 import java.util.UUID;
+
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -20,7 +23,17 @@ public class JoinEvent implements Listener {
 		UUID id = p.getUniqueId();
 		if (main.getJail().isJailed(id)) {
 			if (main.getJail().getPlayerTime(id) == 0) {
-				main.getJail().free(id.toString());
+				if (main.getJail().isInJail(id)) {
+					main.getJail().free(id.toString());
+				} else {
+					File player = new File(main.getDataFolder() + File.separator + "uuids", id.toString() + ".yml");
+					player.delete();
+					for (File f : new File(main.getDataFolder(), "jails").listFiles()) {
+						if (YamlConfiguration.loadConfiguration(f).getString("kept-id").equalsIgnoreCase(id.toString())) {
+							f.delete();
+						}
+					}
+				}
 			} else if (!main.getJail().isInJail(id)) {
 				main.getJail().jailOffline(id);
 			}

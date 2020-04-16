@@ -1,0 +1,13 @@
+name: Jails
+version: 2.0
+author: NukerFall
+main: me.NukerFall.Jails.Jails
+descripiton: Plugin which adds jails system
+softdepend: [Vault]
+commands:
+  jails:
+    description: main plugin command
+  jail:
+    description: command for jailing
+  free:
+    description: command for setting free

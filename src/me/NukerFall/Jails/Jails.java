@@ -8,19 +8,26 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import com.google.common.base.Charsets;
+import me.NukerFall.Jails.Commands.FCommand;
+import me.NukerFall.Jails.Commands.JCommand;
+import me.NukerFall.Jails.Commands.JSCommand;
+import me.NukerFall.Jails.Listeners.JoinEvent;
+import net.milkbowl.vault.economy.Economy;
 
 public class Jails extends JavaPlugin {
 
 	private File locale = new File(getDataFolder(), "locale.yml");
 	FileConfiguration localeconf;
 	Jail jail = new Jail(this);
+	private static Economy econ;
 	BukkitRunnable br = new BukkitRunnable() {
 		@Override
 		public void run() {
-			for (File f : new File(getDataFolder() + File.separator + "uuids").listFiles()) {
+			for (File f : new File(getDataFolder(), "uuids").listFiles()) {
 				FileConfiguration conf = YamlConfiguration.loadConfiguration(f);
 				String id = f.getName().replaceAll(".yml", "");
 				if (conf.getInt("time") > 0) {
@@ -39,12 +46,29 @@ public class Jails extends JavaPlugin {
 	};
 
 	public void onEnable() {
+		setupEconomy();
 		localeconf = YamlConfiguration.loadConfiguration(locale);
 		saveDefaultConfig();
 		saveDefaultLocale();
 		br.runTaskTimerAsynchronously(this, 1200L, 1200L);
+		new JoinEvent(this);
+		new FCommand(this);
+		new JCommand(this);
+		new JSCommand(this);
 		send("§aPlugin enabled!");
 	}
+
+	private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
 
 	private void saveDefaultLocale() {
 		if (!locale.exists()) {
@@ -68,6 +92,10 @@ public class Jails extends JavaPlugin {
 	public Jail getJail() {
 		return jail;
 	}
+	
+	public Economy getEconomy() {
+        return econ;
+    }
 
 	public FileConfiguration getLocale() {
 		return localeconf;
