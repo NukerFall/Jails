@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -65,6 +66,7 @@ public class Jail {
 					return false;
 				}
 				b = false;
+				Bukkit.getPlayer(UUID.fromString(id)).teleport(jconf.getLocation("location"));
 				File f = new File(main.getDataFolder() + File.separator + "uuids", id + ".yml");
 				try {
 					f.createNewFile();
@@ -87,10 +89,13 @@ public class Jail {
 					if (empty) {
 						conf.createSection("inventory");
 					}
-					Bukkit.getPlayer(UUID.fromString(id)).teleport(jconf.getLocation("location"));
 					Bukkit.getPlayer(UUID.fromString(id)).getInventory().clear();
 					Bukkit.getPlayer(UUID.fromString(id))
 							.sendMessage(Utils.clr(main.getLocale().getString("jailed-notification")));
+					Bukkit.getPlayer(UUID.fromString(id)).getInventory().setItemInMainHand(main.getLockpick());
+					if (main.getConfig().getBoolean("change-gamemode")) {
+						Bukkit.getPlayer(UUID.fromString(id)).setGameMode(GameMode.SURVIVAL);
+					}
 				}
 				try {
 					conf.save(f);
@@ -197,6 +202,36 @@ public class Jail {
 			}
 		}
 		return null;
+	}
+	
+
+	public void breakFree(UUID id) {
+		File player = new File(main.getDataFolder() + File.separator + "uuids", id.toString() + ".yml");
+		FileConfiguration pconf = YamlConfiguration.loadConfiguration(player);
+		if (pconf.getConfigurationSection("inventory").getKeys(false).size() != 0) {
+			for (String s : pconf.getConfigurationSection("inventory").getKeys(false)) {
+				Bukkit.getPlayer(id).getInventory().setItem(Integer.valueOf(s),
+						pconf.getItemStack("inventory." + s));
+			}
+		}
+		player.delete();
+		for (File f : new File(main.getDataFolder(), "jails").listFiles()) {
+			FileConfiguration jconf = YamlConfiguration.loadConfiguration(f);
+			if (jconf.getBoolean("kept") && jconf.getString("kept-id").equalsIgnoreCase(id.toString())) {
+				jconf.set("kept", false);
+				jconf.set("kept-id", null);
+				try {
+					jconf.save(f);
+				} catch (IOException ex) {
+					for (Player pl : Bukkit.getOnlinePlayers()) {
+						if (pl.isOp()) {
+							pl.sendMessage(Utils.clr(main.getLocale().getString("error-saving-jail")));
+						}
+					}
+				}
+				break;
+			}
+		}
 	}
 
 }

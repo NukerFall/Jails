@@ -1,4 +1,9 @@
 pay-exit: true
 cost-per-min: 2.0
+lock-chance: 5
+change-gamemode: true
 no-reason: 'NO REASON'
 free-location: 'JAILS_LOCATION'
+lockpick-material: 'STICK'
+lockpick-name: '&eLockpick'
+lore-line: '&eUse if for breaking free'
