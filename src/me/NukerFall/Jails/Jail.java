@@ -78,6 +78,7 @@ public class Jail {
 				conf.set("time", time);
 				conf.set("reason", reason);
 				conf.set("location", loc);
+				conf.set("jail", jail.getName().replaceAll(".yml", ""));
 				if (online) {
 					Boolean empty = true;
 					for (Integer i = 0; i < Bukkit.getPlayer(UUID.fromString(id)).getInventory().getSize(); i++) {
@@ -95,6 +96,10 @@ public class Jail {
 					Bukkit.getPlayer(UUID.fromString(id)).getInventory().setItemInMainHand(main.getLockpick());
 					if (main.getConfig().getBoolean("change-gamemode")) {
 						Bukkit.getPlayer(UUID.fromString(id)).setGameMode(GameMode.SURVIVAL);
+						Bukkit.getPlayer(UUID.fromString(id)).setFlying(false);
+					}
+					if (main.getConfig().getBoolean("set-invulnerable")) {
+						Bukkit.getPlayer(UUID.fromString(id)).setInvulnerable(true);
 					}
 				}
 				try {
@@ -155,6 +160,7 @@ public class Jail {
 			FileConfiguration jconf = YamlConfiguration.loadConfiguration(jail);
 			if (jconf.getString("kept-id").equalsIgnoreCase(id.toString())) {
 				name = jail.getName().replaceAll(".yml", "");
+				conf.set("jail", name);
 				break;
 			}
 		}
@@ -172,7 +178,7 @@ public class Jail {
 		Bukkit.getPlayer(id).sendMessage(Utils.clr(main.getLocale().getString("jailed-notification")));
 	}
 
-	private Location getJailLocation(String name) {
+	public Location getJailLocation(String name) {
 		File jail = new File(main.getDataFolder() + File.separator + "jails", name + ".yml");
 		return YamlConfiguration.loadConfiguration(jail).getLocation("location");
 	}
@@ -194,14 +200,10 @@ public class Jail {
 		return YamlConfiguration.loadConfiguration(f).getBoolean("kept");
 	}
 
+	@SuppressWarnings("deprecation")
 	public String getPlayerJail(String string) {
-		for (File jail : new File(main.getDataFolder(), "jails").listFiles()) {
-			if (YamlConfiguration.loadConfiguration(jail).getString("kept-id")
-					.equalsIgnoreCase(Bukkit.getPlayer(string).getUniqueId().toString())) {
-				return jail.getName().replaceAll(".yml", "");
-			}
-		}
-		return null;
+		File f = new File(main.getDataFolder() + File.separator + "uuids", Bukkit.getOfflinePlayer(string).getUniqueId().toString() + ".yml");
+		return YamlConfiguration.loadConfiguration(f).getString("jail");
 	}
 	
 

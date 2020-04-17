@@ -2,6 +2,8 @@ pay-exit: true
 cost-per-min: 2.0
 lock-chance: 5
 change-gamemode: true
+disable-chat: true
+set-invulnerable: true
 no-reason: 'NO REASON'
 free-location: 'JAILS_LOCATION'
 lockpick-material: 'STICK'
