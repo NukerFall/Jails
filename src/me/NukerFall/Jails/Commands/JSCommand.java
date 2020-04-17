@@ -2,6 +2,9 @@ package me.NukerFall.Jails.Commands;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,6 +23,7 @@ public class JSCommand implements CommandExecutor {
 		main.getCommand("jails").setExecutor(this);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (sender instanceof Player) {
@@ -37,9 +41,37 @@ public class JSCommand implements CommandExecutor {
 						main.reloadLocale();
 						sender.sendMessage(Utils.clr(main.getLocale().getString("reloaded")));
 						break;
+					case "setspawn":
+						main.getConfig().set("location", ((Player) sender).getLocation());
+						sender.sendMessage(Utils.clr(main.getLocale().getString("spawn-set")));
+						break;
 					case "list":
+						if (new File(main.getDataFolder() + File.separator + "jails").listFiles().length != 0) {
+							sender.sendMessage(Utils.clr(main.getLocale().getString("jails-title")));
+							for (File f : new File(main.getDataFolder() + File.separator + "jails").listFiles()) {
+								sender.sendMessage(Utils.clr(main.getLocale().getString("jail-format")
+										.replaceAll("%name%", f.getName().replaceAll(".yml", ""))
+										.replaceAll("%kept%", String
+												.valueOf(YamlConfiguration.loadConfiguration(f).getBoolean("kept")))));
+							}
+						} else {
+							sender.sendMessage(Utils.clr(main.getLocale().getString("no-jails")));
+						}
 						break;
 					case "playerlist":
+						if (new File(main.getDataFolder() + File.separator + "uuids").listFiles().length != 0) {
+							sender.sendMessage(Utils.clr(main.getLocale().getString("players-title")));
+							for (File f : new File(main.getDataFolder() + File.separator + "uuids").listFiles()) {
+								sender.sendMessage(Utils.clr(main.getLocale().getString("player-format")
+										.replaceAll("%name%",
+												Bukkit.getOfflinePlayer(
+														UUID.fromString(f.getName().replaceAll(".yml", ""))).getName())
+										.replaceAll("%jailname%", main.getJail().getPlayerJail(Bukkit.getOfflinePlayer(
+												UUID.fromString(f.getName().replaceAll(".yml", ""))).getName()))));
+							}
+						} else {
+							sender.sendMessage(Utils.clr(main.getLocale().getString("no-players")));
+						}
 						break;
 					default:
 						sender.sendMessage(Utils.clr(main.getLocale().getString("args")));
@@ -50,17 +82,20 @@ public class JSCommand implements CommandExecutor {
 					case "jail":
 						File jail = new File(main.getDataFolder() + File.separator + "jails", args[1] + ".yml");
 						if (jail.exists()) {
-							sender.sendMessage(Utils.clr(main.getLocale().getString("jail-format").replaceAll("%name%", args[1])
-							.replaceAll("%kept%", String.valueOf(main.getJail().isKept(args[1])))));
+							sender.sendMessage(Utils.clr(main.getLocale().getString("jail-format")
+									.replaceAll("%name%", args[1]).replaceAll("%kept%", String
+											.valueOf(YamlConfiguration.loadConfiguration(jail).getBoolean("kept")))));
 						} else {
 							sender.sendMessage(Utils.clr(main.getLocale().getString("jail-not-exist")));
 						}
 						break;
 					case "player":
-						File player = new File(main.getDataFolder() + File.separator + "jails", args[1] + ".yml");
+						File player = new File(main.getDataFolder() + File.separator + "uuids",
+								Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString() + ".yml");
 						if (player.exists()) {
-							sender.sendMessage(Utils.clr(main.getLocale().getString("player-format").replaceAll("%name%", args[1])
-							.replaceAll("%jailname%", main.getJail().getPlayerJail(args[1]))));
+							sender.sendMessage(
+									Utils.clr(main.getLocale().getString("player-format").replaceAll("%name%", args[1])
+											.replaceAll("%jailname%", main.getJail().getPlayerJail(args[1]))));
 						} else {
 							sender.sendMessage(Utils.clr(main.getLocale().getString("player-not-jailed")));
 						}
@@ -79,6 +114,7 @@ public class JSCommand implements CommandExecutor {
 								sender.sendMessage(Utils.clr(main.getLocale().getString("created")));
 							} catch (IOException e) {
 								sender.sendMessage(Utils.clr(main.getLocale().getString("error-saving-jail")));
+								e.printStackTrace();
 							}
 						}
 						break;
@@ -148,6 +184,7 @@ public class JSCommand implements CommandExecutor {
 			sender.sendMessage(Utils.clr("&e/jails player <name> &a- player information"));
 			sender.sendMessage(Utils.clr("&e/jails create <name> &a- create new jail"));
 			sender.sendMessage(Utils.clr("&e/jails remove <name> &a- delete existing jail"));
+			sender.sendMessage(Utils.clr("&e/jails setspawn &a- set spawnpoint for free player"));
 			sender.sendMessage(Utils.clr("&e/jail <name> <time> <reason>/<null> &a- jail player"));
 			sender.sendMessage(Utils.clr("&e/free <name> &a- set player free"));
 		}

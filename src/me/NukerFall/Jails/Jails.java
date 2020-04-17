@@ -27,18 +27,21 @@ public class Jails extends JavaPlugin {
 	BukkitRunnable br = new BukkitRunnable() {
 		@Override
 		public void run() {
-			for (File f : new File(getDataFolder(), "uuids").listFiles()) {
-				FileConfiguration conf = YamlConfiguration.loadConfiguration(f);
-				String id = f.getName().replaceAll(".yml", "");
-				if (conf.getInt("time") > 0) {
-					conf.set("time", conf.getInt("time") - 1);
-					try {
-						conf.save(f);
-					} catch (IOException e) {
-						send("§cError with saving uuid file for " + id + "!");
-					}
-					if (conf.getInt("time") == 0 && Bukkit.getOfflinePlayer(UUID.fromString(id)).isOnline()) {
-						getJail().free(id);
+			if (new File(getDataFolder(), "uuids").listFiles() != null) {
+				for (File f : new File(getDataFolder(), "uuids").listFiles()) {
+					FileConfiguration conf = YamlConfiguration.loadConfiguration(f);
+					String id = f.getName().replaceAll(".yml", "");
+					if (conf.getInt("time") > 0) {
+						conf.set("time", conf.getInt("time") - 1);
+						try {
+							conf.save(f);
+						} catch (IOException e) {
+							send("§cError with saving uuid file for " + id + "!");
+							e.printStackTrace();
+						}
+						if (conf.getInt("time") == 0 && Bukkit.getOfflinePlayer(UUID.fromString(id)).isOnline()) {
+							getJail().free(id);
+						}
 					}
 				}
 			}
@@ -46,11 +49,13 @@ public class Jails extends JavaPlugin {
 	};
 
 	public void onEnable() {
+		new File(getDataFolder() + File.separator + "jails").mkdir();
+		new File(getDataFolder() + File.separator + "uuids").mkdir();
 		setupEconomy();
-		localeconf = YamlConfiguration.loadConfiguration(locale);
 		saveDefaultConfig();
 		saveDefaultLocale();
-		br.runTaskTimerAsynchronously(this, 1200L, 1200L);
+		localeconf = YamlConfiguration.loadConfiguration(locale);
+		br.runTaskTimer(this, 1200L, 1200L);
 		new JoinEvent(this);
 		new FCommand(this);
 		new JCommand(this);
@@ -59,25 +64,20 @@ public class Jails extends JavaPlugin {
 	}
 
 	private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        econ = rsp.getProvider();
-        return econ != null;
-    }
+		if (getServer().getPluginManager().getPlugin("Vault") == null) {
+			return false;
+		}
+		RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+		if (rsp == null) {
+			return false;
+		}
+		econ = rsp.getProvider();
+		return econ != null;
+	}
 
 	private void saveDefaultLocale() {
 		if (!locale.exists()) {
-			try {
-				locale.createNewFile();
-			} catch (IOException e) {
-				send("§cError with saving locale!");
-				getServer().getPluginManager().disablePlugin(this);
-			}
+			saveResource("locale.yml", false);
 		}
 	}
 
@@ -92,10 +92,10 @@ public class Jails extends JavaPlugin {
 	public Jail getJail() {
 		return jail;
 	}
-	
+
 	public Economy getEconomy() {
-        return econ;
-    }
+		return econ;
+	}
 
 	public FileConfiguration getLocale() {
 		return localeconf;
@@ -103,11 +103,12 @@ public class Jails extends JavaPlugin {
 
 	public void reloadLocale() {
 		localeconf = YamlConfiguration.loadConfiguration(locale);
-	    InputStream defConfigStream = getResource("locale.yml");
-	    if (defConfigStream == null) {
-	      return;
-	    }
-	    localeconf.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream, Charsets.UTF_8)));
+		InputStream defConfigStream = getResource("locale.yml");
+		if (defConfigStream == null) {
+			return;
+		}
+		localeconf.setDefaults(
+				YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream, Charsets.UTF_8)));
 	}
 
 }
