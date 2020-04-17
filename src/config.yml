@@ -4,6 +4,7 @@ lock-chance: 5
 change-gamemode: true
 disable-chat: true
 set-invulnerable: true
+lock-enabled: true
 no-reason: 'NO REASON'
 free-location: 'JAILS_LOCATION'
 lockpick-material: 'STICK'

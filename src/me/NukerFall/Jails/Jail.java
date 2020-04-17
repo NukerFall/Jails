@@ -52,7 +52,7 @@ public class Jail {
 		Bukkit.getPlayer(UUID.fromString(id)).sendMessage(Utils.clr(main.getLocale().getString("free-notification")));
 	}
 
-	public boolean jail(CommandSender sender, String id, Integer time, String reason, boolean online, Location loc) {
+	public boolean jail(Player sender, String id, Integer time, String reason, boolean online, Location loc) {
 		Boolean b = true;
 		for (File jail : new File(main.getDataFolder(), "jails").listFiles()) {
 			FileConfiguration jconf = YamlConfiguration.loadConfiguration(jail);
@@ -93,7 +93,9 @@ public class Jail {
 					Bukkit.getPlayer(UUID.fromString(id)).getInventory().clear();
 					Bukkit.getPlayer(UUID.fromString(id))
 							.sendMessage(Utils.clr(main.getLocale().getString("jailed-notification")));
-					Bukkit.getPlayer(UUID.fromString(id)).getInventory().setItemInMainHand(main.getLockpick());
+					if (main.getConfig().getBoolean("lock-enabled")) {
+						Bukkit.getPlayer(UUID.fromString(id)).getInventory().setItemInMainHand(main.getLockpick());
+					}
 					if (main.getConfig().getBoolean("change-gamemode")) {
 						Bukkit.getPlayer(UUID.fromString(id)).setGameMode(GameMode.SURVIVAL);
 						Bukkit.getPlayer(UUID.fromString(id)).setFlying(false);
@@ -175,6 +177,9 @@ public class Jail {
 		}
 		Bukkit.getPlayer(id).getInventory().clear();
 		Bukkit.getPlayer(id).teleport(getJailLocation(name));
+		if (main.getConfig().getBoolean("lock-enabled")) {
+			Bukkit.getPlayer(id).getInventory().setItemInMainHand(main.getLockpick());
+		}
 		Bukkit.getPlayer(id).sendMessage(Utils.clr(main.getLocale().getString("jailed-notification")));
 	}
 
