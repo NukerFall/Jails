@@ -32,7 +32,7 @@ public class FCommand implements CommandExecutor {
 						}
 						sender.sendMessage(Utils.clr(main.getLocale().getString("player-free")));
 					} else {
-						sender.sendMessage(Utils.clr(main.getLocale().getString("not-jailed")));
+						sender.sendMessage(Utils.clr(main.getLocale().getString("player-not-jailed")));
 					}
 				} else {
 					sender.sendMessage(Utils.clr(main.getLocale().getString("no-player")));
@@ -63,7 +63,7 @@ public class FCommand implements CommandExecutor {
 							sender.sendMessage(Utils.clr(main.getLocale().getString("pay-exit-disabled")));
 						}
 					} else {
-						sender.sendMessage(Utils.clr(main.getLocale().getString("uon-not-jailed")));
+						sender.sendMessage(Utils.clr(main.getLocale().getString("player-not-jailed")));
 					}
 				} else {
 					sender.sendMessage(Utils.clr(main.getLocale().getString("no-perm")));

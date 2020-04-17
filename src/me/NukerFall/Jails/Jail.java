@@ -77,7 +77,7 @@ public class Jail {
 			}
 		}
 		if (b) {
-			sender.sendMessage(Utils.clr(main.getConfig().getString("no-empty-jails")));
+			sender.sendMessage(Utils.clr(main.getLocale().getString("no-empty-jails")));
 		}
 	}
 

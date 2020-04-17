@@ -50,7 +50,7 @@ public class JSCommand implements CommandExecutor {
 					case "jail":
 						File jail = new File(main.getDataFolder() + File.separator + "jails", args[1] + ".yml");
 						if (jail.exists()) {
-							sender.sendMessage(Utils.clr(main.getLocale().getString("jail-fromat").replaceAll("%name%", args[1])
+							sender.sendMessage(Utils.clr(main.getLocale().getString("jail-format").replaceAll("%name%", args[1])
 							.replaceAll("%kept%", String.valueOf(main.getJail().isKept(args[1])))));
 						} else {
 							sender.sendMessage(Utils.clr(main.getLocale().getString("jail-not-exist")));
