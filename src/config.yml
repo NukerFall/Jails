@@ -5,6 +5,7 @@ change-gamemode: true
 disable-chat: true
 set-invulnerable: true
 lock-enabled: true
+offline-count: true
 no-reason: 'NO REASON'
 free-location: 'JAILS_LOCATION'
 lockpick-material: 'STICK'

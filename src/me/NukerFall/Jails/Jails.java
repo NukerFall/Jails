@@ -40,16 +40,18 @@ public class Jails extends JavaPlugin {
 				for (File f : new File(getDataFolder(), "uuids").listFiles()) {
 					FileConfiguration conf = YamlConfiguration.loadConfiguration(f);
 					String id = f.getName().replaceAll(".yml", "");
-					if (conf.getInt("time") > 0) {
-						conf.set("time", conf.getInt("time") - 1);
-						try {
-							conf.save(f);
-						} catch (IOException e) {
-							send("§cError with saving uuid file for " + id + "!");
-							e.printStackTrace();
-						}
-						if (conf.getInt("time") == 0 && Bukkit.getOfflinePlayer(UUID.fromString(id)).isOnline()) {
-							getJail().free(id);
+					if ((getConfig().getBoolean("offline-count")) || (!getConfig().getBoolean("offline-count") && Bukkit.getOfflinePlayer(UUID.fromString(id)).isOnline())) {
+						if (conf.getInt("time") > 0) {
+							conf.set("time", conf.getInt("time") - 1);
+							try {
+								conf.save(f);
+							} catch (IOException e) {
+								send("§cError with saving uuid file for " + id + "!");
+								e.printStackTrace();
+							}
+							if (conf.getInt("time") == 0 && Bukkit.getOfflinePlayer(UUID.fromString(id)).isOnline()) {
+								getJail().free(id);
+							}
 						}
 					}
 				}
