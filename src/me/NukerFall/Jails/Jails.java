@@ -33,31 +33,6 @@ public class Jails extends JavaPlugin {
 	Jail jail = new Jail(this);
 	private static Economy econ;
 	private ItemStack lockpick = new ItemStack(Material.valueOf(getConfig().getString("lockpick-material")), 1);
-	BukkitRunnable br = new BukkitRunnable() {
-		@Override
-		public void run() {
-			if (new File(getDataFolder(), "uuids").listFiles() != null) {
-				for (File f : new File(getDataFolder(), "uuids").listFiles()) {
-					FileConfiguration conf = YamlConfiguration.loadConfiguration(f);
-					String id = f.getName().replaceAll(".yml", "");
-					if ((getConfig().getBoolean("offline-count")) || (!getConfig().getBoolean("offline-count") && Bukkit.getOfflinePlayer(UUID.fromString(id)).isOnline())) {
-						if (conf.getInt("time") > 0) {
-							conf.set("time", conf.getInt("time") - 1);
-							try {
-								conf.save(f);
-							} catch (IOException e) {
-								send("§cError with saving uuid file for " + id + "!");
-								e.printStackTrace();
-							}
-							if (conf.getInt("time") == 0 && Bukkit.getOfflinePlayer(UUID.fromString(id)).isOnline()) {
-								getJail().free(id);
-							}
-						}
-					}
-				}
-			}
-		}
-	};
 
 	public void setLockPick() {
 		ItemMeta meta = getLockpick().getItemMeta();
@@ -84,6 +59,31 @@ public class Jails extends JavaPlugin {
 		saveDefaultConfig();
 		saveDefaultLocale();
 		localeconf = YamlConfiguration.loadConfiguration(locale);
+		BukkitRunnable br = new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (new File(getDataFolder(), "uuids").listFiles() != null) {
+					for (File f : new File(getDataFolder(), "uuids").listFiles()) {
+						FileConfiguration conf = YamlConfiguration.loadConfiguration(f);
+						String id = f.getName().replaceAll(".yml", "");
+						if ((getConfig().getBoolean("offline-count")) || (!getConfig().getBoolean("offline-count") && Bukkit.getOfflinePlayer(UUID.fromString(id)).isOnline())) {
+							if (conf.getInt("time") > 0) {
+								conf.set("time", conf.getInt("time") - 1);
+								try {
+									conf.save(f);
+								} catch (IOException e) {
+									send("§cError with saving uuid file for " + id + "!");
+									e.printStackTrace();
+								}
+								if (conf.getInt("time") == 0 && Bukkit.getOfflinePlayer(UUID.fromString(id)).isOnline()) {
+									getJail().free(id);
+								}
+							}
+						}
+					}
+				}
+			}
+		};
 		br.runTaskTimer(this, 1200L, 1200L);
 		new JoinEvent(this);
 		new FCommand(this);
