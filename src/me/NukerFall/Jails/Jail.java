@@ -23,7 +23,8 @@ public class Jail {
 	public void free(String id) {
 		File player = new File(main.getDataFolder() + File.separator + "uuids", id + ".yml");
 		FileConfiguration pconf = YamlConfiguration.loadConfiguration(player);
-		Bukkit.getPlayer(UUID.fromString(id)).teleport(pconf.getLocation("location"));
+		Location loc = pconf.getLocation("location");
+		Player fred = Bukkit.getPlayer(UUID.fromString(id));
 		Bukkit.getPlayer(UUID.fromString(id)).getInventory().clear();
 		if (pconf.getConfigurationSection("inventory").getKeys(false).size() != 0) {
 			for (String s : pconf.getConfigurationSection("inventory").getKeys(false)) {
@@ -50,6 +51,7 @@ public class Jail {
 			}
 		}
 		Bukkit.getPlayer(UUID.fromString(id)).sendMessage(Utils.clr(main.getLocale().getString("free-notification")));
+		fred.teleport(loc);
 	}
 
 	public boolean jail(Player sender, String id, Integer time, String reason, boolean online, Location loc) {

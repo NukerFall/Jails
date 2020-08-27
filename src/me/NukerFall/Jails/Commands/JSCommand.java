@@ -66,8 +66,11 @@ public class JSCommand implements CommandExecutor {
 										.replaceAll("%name%",
 												Bukkit.getOfflinePlayer(
 														UUID.fromString(f.getName().replaceAll(".yml", ""))).getName())
-										.replaceAll("%jailname%", main.getJail().getPlayerJail(Bukkit.getOfflinePlayer(
-												UUID.fromString(f.getName().replaceAll(".yml", ""))).getName()))));
+										.replaceAll("%jailname%",
+												main.getJail().getPlayerJail(Bukkit
+														.getOfflinePlayer(
+																UUID.fromString(f.getName().replaceAll(".yml", "")))
+														.getName()))));
 							}
 						} else {
 							sender.sendMessage(Utils.clr(main.getLocale().getString("no-players")));
@@ -144,8 +147,12 @@ public class JSCommand implements CommandExecutor {
 				} else {
 					sender.sendMessage(Utils.clr(main.getLocale().getString("args")));
 				}
-			} else if (args[0].equalsIgnoreCase("help")) {
-				throwHelp(sender, false);
+			} else if (args.length == 1) {
+				if (args[0].equalsIgnoreCase("help")) {
+					throwHelp(sender, false);
+				} else {
+					sender.sendMessage(Utils.clr(main.getLocale().getString("args")));
+				}
 			} else {
 				sender.sendMessage(Utils.clr(main.getLocale().getString("no-perm")));
 			}
@@ -166,7 +173,7 @@ public class JSCommand implements CommandExecutor {
 
 	private void throwInfo(CommandSender sender) {
 		sender.sendMessage(Utils.clr("&eJails"));
-		sender.sendMessage(Utils.clr("&eVersion: &a2.0"));
+		sender.sendMessage(Utils.clr("&eVersion: &a2.3"));
 		sender.sendMessage(Utils.clr("&eAuthor: &aNukerFall"));
 		sender.sendMessage(Utils.clr("&eType &a/jails help &efor help!"));
 	}
